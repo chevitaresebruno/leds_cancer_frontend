@@ -4,18 +4,36 @@ import { api } from '@/services/api';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
+/** Interface do contexto de autenticação exposto pelo {@link AuthProvider}. */
 interface AuthContextType {
+  /** Usuário autenticado, ou `null` quando não há sessão ativa. */
   user: User | null;
+  /** `true` quando há um usuário autenticado. */
   isAuthenticated: boolean;
+  /** `true` enquanto a sessão está sendo restaurada do localStorage. */
   isLoading: boolean;
+  /** Autentica o usuário por e-mail ou CRM. */
   login: (data: LoginFormData) => Promise<void>;
+  /** Realiza o cadastro do usuário (conta fica pendente de aprovação). */
   register: (data: RegisterFormData) => Promise<void>;
+  /** Encerra a sessão e limpa os tokens do localStorage. */
   logout: () => void;
+  /** Atualiza campos do usuário no estado local sem refazer o fetch. */
   updateUser: (data: Partial<Pick<User, 'fullName' | 'email' | 'crm'>>) => void;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+/**
+ * Hook para acessar o contexto de autenticação.
+ *
+ * @throws {Error} Se usado fora de um {@link AuthProvider}.
+ *
+ * @example
+ * ```tsx
+ * const { user, login, logout } = useAuth();
+ * ```
+ */
 export function useAuth() {
   const ctx = useContext(AuthContext);
   if (!ctx) throw new Error('useAuth must be used within AuthProvider');
@@ -24,17 +42,28 @@ export function useAuth() {
 
 // ─── Helpers de token ─────────────────────────────────────────────────────────
 
+/** Persiste os tokens JWT no localStorage. */
 function saveTokens(access: string, refresh: string) {
   localStorage.setItem('access_token', access);
   localStorage.setItem('refresh_token', refresh);
 }
 
+/** Remove os tokens JWT do localStorage. */
 function clearTokens() {
   localStorage.removeItem('access_token');
   localStorage.removeItem('refresh_token');
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
+
+/**
+ * Provedor de autenticação.
+ *
+ * Ao montar, tenta restaurar a sessão buscando `GET /auth/me/` com o
+ * access token armazenado. Se falhar, limpa os tokens silenciosamente.
+ *
+ * Deve envolver toda a aplicação (ou ao menos as rotas protegidas).
+ */
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -104,6 +133,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 // ─── Mapeamento API → tipo do frontend ────────────────────────────────────────
 
+/** Formato do usuário retornado pela API (snake_case). */
 interface ApiUser {
   id: number | string;
   full_name: string;
@@ -112,6 +142,10 @@ interface ApiUser {
   role: string;
 }
 
+/**
+ * Converte o usuário do formato da API para o formato do frontend.
+ * O `id` é normalizado para string; `crm` nulo vira string vazia.
+ */
 function mapUser(apiUser: ApiUser): User {
   return {
     id: String(apiUser.id),

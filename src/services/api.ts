@@ -1,14 +1,21 @@
 import axios from 'axios';
 
-// ─── Instância base ───────────────────────────────────────────────────────────
-
+/**
+ * Instância Axios compartilhada por todos os services.
+ *
+ * A `baseURL` é lida de `VITE_API_URL` no `.env`; faz fallback para
+ * `http://localhost:8000/api` em desenvolvimento.
+ */
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:8000/api',
   headers: { 'Content-Type': 'application/json' },
 });
 
-// ─── Interceptor de request: injeta o access token em toda chamada ────────────
-
+/**
+ * Interceptor de request: injeta o Bearer token em todas as chamadas.
+ * O token é lido do `localStorage` a cada requisição para refletir
+ * renovações sem precisar recriar a instância.
+ */
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('access_token');
   if (token) {
@@ -17,6 +24,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+/**
+ * Interceptor de response: renovação automática do access token.
+ *
+ * Quando a API retorna 401, tenta usar o refresh token para obter
+ * um novo access token e reenvia a requisição original.
+ * Se o refresh também falhar, limpa os tokens e redireciona para `/`.
+ */
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

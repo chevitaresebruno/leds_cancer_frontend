@@ -1,8 +1,18 @@
 import type { ExamStatus } from '@/types/dashboard';
 import type { PatientStatus } from '@/types/patient';
 
-// ─── Status de exame (usado em 3+ componentes) ────────────────────────────────
-
+/**
+ * Mapeamento de status de exame para label e cor do componente `Chip` do MUI.
+ *
+ * Centraliza a configuração visual de status para evitar duplicação
+ * em múltiplos componentes que exibem badges de status.
+ *
+ * @example
+ * ```tsx
+ * const { label, color } = EXAM_STATUS_CONFIG[exam.status];
+ * <Chip label={label} color={color} />
+ * ```
+ */
 export const EXAM_STATUS_CONFIG: Record<
   ExamStatus,
   { label: string; color: 'default' | 'primary' | 'warning' | 'success' | 'error' }
@@ -13,8 +23,15 @@ export const EXAM_STATUS_CONFIG: Record<
   cancelado:  { label: 'Cancelado',  color: 'error'   },
 };
 
-// ─── Status de paciente ───────────────────────────────────────────────────────
-
+/**
+ * Mapeamento de status de paciente para label e cor do componente `Chip` do MUI.
+ *
+ * @example
+ * ```tsx
+ * const { label, color } = PATIENT_STATUS_CONFIG[patient.status];
+ * <Chip label={label} color={color} size="small" />
+ * ```
+ */
 export const PATIENT_STATUS_CONFIG: Record<
   PatientStatus,
   { label: string; color: 'success' | 'default' }
@@ -23,8 +40,16 @@ export const PATIENT_STATUS_CONFIG: Record<
   inativo: { label: 'Inativo', color: 'default' },
 };
 
-// ─── Role label ───────────────────────────────────────────────────────────────
-
+/**
+ * Mapeamento de role (papel do usuário) para label em português.
+ *
+ * Usado em componentes de perfil e listagem de usuários.
+ *
+ * @example
+ * ```tsx
+ * ROLE_LABEL[user.role] // → 'Médico(a)'
+ * ```
+ */
 export const ROLE_LABEL: Record<string, string> = {
   medico:        'Médico(a)',
   tecnico:       'Técnico(a)',

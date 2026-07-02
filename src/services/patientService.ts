@@ -2,12 +2,14 @@ import { api } from './api';
 import type { Patient, PatientExam } from '@/types/patient';
 import type { ExamStatus } from '@/types/dashboard';
 
-// ─── Tipo que a API retorna ──────────────────────────────────────
+// ─── Tipos da API (snake_case) ────────────────────────────────────────────────
 
+/** Formato bruto retornado pelo backend para um paciente. */
 interface ApiPatient {
   id: number;
   name: string;
-  birth_date: string;   // dd/MM/yyyy
+  /** Data no formato `dd/MM/yyyy`. */
+  birth_date: string;
   age: number;
   cpf: string;
   phone: string;
@@ -18,6 +20,7 @@ interface ApiPatient {
   exams?: ApiPatientExam[];
 }
 
+/** Formato bruto de um exame aninhado dentro de um paciente. */
 interface ApiPatientExam {
   id: number | string;
   date: string;
@@ -28,6 +31,13 @@ interface ApiPatientExam {
 
 // ─── Mapper ───────────────────────────────────────────────────────────────────
 
+/**
+ * Converte o formato snake_case da API para o formato camelCase do frontend.
+ * O `id` é normalizado para `string` para consistência com o restante da app.
+ *
+ * @param p - Objeto no formato da API.
+ * @returns Objeto no formato {@link Patient}.
+ */
 function mapPatient(p: ApiPatient): Patient {
   return {
     id: String(p.id),
@@ -52,7 +62,14 @@ function mapPatient(p: ApiPatient): Patient {
 
 // ─── Service ──────────────────────────────────────────────────────────────────
 
+/** Service de pacientes — todas as chamadas a `/api/patients/`. */
 export const patientService = {
+  /**
+   * Lista todos os pacientes com busca opcional.
+   *
+   * @param search - Termo de busca por nome, CPF ou e-mail.
+   * @returns Lista de {@link Patient}.
+   */
   list: async (search?: string): Promise<Patient[]> => {
     const { data } = await api.get<ApiPatient[]>('/patients/', {
       params: search ? { search } : {},
@@ -60,17 +77,39 @@ export const patientService = {
     return data.map(mapPatient);
   },
 
+  /**
+   * Retorna o detalhe de um paciente incluindo seus exames.
+   *
+   * @param id - ID do paciente.
+   * @returns Objeto {@link Patient} com campo `exams` preenchido.
+   */
   getById: async (id: string): Promise<Patient> => {
     const { data } = await api.get<ApiPatient>(`/patients/${id}/`);
     return mapPatient(data);
   },
 
+  /**
+   * Cria um novo paciente.
+   *
+   * @param data - Campos do paciente em snake_case.
+   */
   create: (data: Record<string, unknown>) =>
     api.post<ApiPatient>('/patients/', data),
 
+  /**
+   * Atualiza parcialmente um paciente existente.
+   *
+   * @param id - ID do paciente.
+   * @param data - Campos a atualizar em snake_case.
+   */
   update: (id: string, data: Record<string, unknown>) =>
     api.patch<ApiPatient>(`/patients/${id}/`, data),
 
+  /**
+   * Remove um paciente pelo ID.
+   *
+   * @param id - ID do paciente.
+   */
   remove: (id: string) =>
     api.delete(`/patients/${id}/`),
 };

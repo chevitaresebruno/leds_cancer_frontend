@@ -12,19 +12,31 @@ import { examService } from '@/services/examService';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
+/** Estatísticas dos cards do dashboard. */
 export interface ExamStats {
+  /** Número de exames com data igual a hoje. */
   todayPatients: number;
+  /** Número de exames com status `pendente`. */
   pendingExams: number;
+  /** Número de exames criados no mês corrente. */
   monthlyDiagnostics: number;
+  /** Número de exames concluídos hoje. */
   concludedToday: number;
 }
 
+/** Interface do contexto de exames exposto pelo {@link ExamProvider}. */
 interface ExamContextType {
+  /** Lista dos exames mais recentes para o feed do dashboard. */
   recentExams: RecentExam[];
+  /** Contadores para os cards do dashboard. */
   stats: ExamStats;
+  /** `true` enquanto o carregamento inicial está em andamento. */
   isLoading: boolean;
+  /** Cache de exames por paciente (populado de forma lazy). */
   patientExams: Record<string, PatientExam[]>;
+  /** Submete um novo exame e atualiza o estado do dashboard. */
   submitExam: (form: NewAnalysisFormData, patientName: string) => Promise<void>;
+  /** Recarrega exames recentes e estatísticas do dashboard. */
   refreshExams: () => Promise<void>;
 }
 
@@ -41,6 +53,16 @@ const EMPTY_STATS: ExamStats = {
 
 const ExamContext = createContext<ExamContextType | null>(null);
 
+/**
+ * Hook para acessar o contexto de exames.
+ *
+ * @throws {Error} Se usado fora de um {@link ExamProvider}.
+ *
+ * @example
+ * ```tsx
+ * const { stats, submitExam } = useExams();
+ * ```
+ */
 export function useExams() {
   const ctx = useContext(ExamContext);
   if (!ctx) throw new Error('useExams must be used within ExamProvider');
@@ -48,6 +70,17 @@ export function useExams() {
 }
 
 // ─── Provider ─────────────────────────────────────────────────────────────────
+
+/**
+ * Provedor do contexto de exames.
+ *
+ * Ao montar (quando há access token), carrega em paralelo:
+ * - Exames recentes para o feed do dashboard
+ * - Estatísticas dos cards do dashboard
+ *
+ * Disponibiliza `submitExam` para o fluxo de nova análise e
+ * `loadPatientExams` (lazy) para o drawer de detalhes do paciente.
+ */
 
 export function ExamProvider({ children }: { children: React.ReactNode }) {
   const [recentExams, setRecentExams] = useState<RecentExam[]>([]);
