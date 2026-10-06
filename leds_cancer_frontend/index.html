@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/leds_cancer/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MammoAI — Pré-diagnóstico de Câncer de Mama</title>
+    <script>
+      // Restaura a rota salva pelo 404.html do GitHub Pages
+      (function () {
+        var redirect = sessionStorage.getItem('gh-pages-redirect');
+        if (redirect) {
+          sessionStorage.removeItem('gh-pages-redirect');
+          // Usa replaceState para não criar entrada extra no histórico
+          window.history.replaceState(null, '', '/leds_cancer' + redirect);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
