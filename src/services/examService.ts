@@ -157,4 +157,6 @@ export const examService = {
    * @param id - ID do exame.
    */
   remove: (id: string | number) => api.delete(`/exams/${id}/`),
+
+  download: (id: string) => api.get(`/exams/${id}/download/`, { headers: { Accept: "application/pdf" } })
 };

@@ -1,5 +1,5 @@
 /** Status possíveis de um exame de mamografia. */
-export type ExamStatus = 'pendente' | 'em_analise' | 'concluido' | 'cancelado';
+export type ExamStatus = 'pendente' | 'em_analise' | 'concluido' | 'cancelado' | 'não enviado';
 
 /** Dados de um card de estatística no dashboard. */
 export interface StatCardData {

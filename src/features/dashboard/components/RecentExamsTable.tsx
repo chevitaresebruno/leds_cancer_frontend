@@ -18,14 +18,42 @@ import {
 } from '@mui/material';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import FileDownloadOutlinedIcon from '@mui/icons-material/FileDownloadOutlined';
-import type { ExamStatus } from '@/types/dashboard';
+import type { ExamStatus, RecentExam } from '@/types/dashboard';
 import { useExams } from '@/contexts/ExamContext';
 import { EXAM_STATUS_CONFIG } from '@/utils/statusConfig';
+import { examService } from '@/services/examService';
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function RecentExamsTable() {
   const { recentExams, isLoading } = useExams();
+
+  const donwloadAction = (exam: RecentExam) => {
+    if (exam.status == "pendente" || exam.status == "concluido") {
+      const aria_label = `Baixar laudo ${exam.id}`
+      return (<Tooltip title="Baixar laudo">
+        <IconButton size="small" aria-label={aria_label} onClick={() => { examService.download(exam.id) }}>
+          <FileDownloadOutlinedIcon fontSize="small" />
+        </IconButton>
+      </Tooltip>
+      )
+    }
+
+    return <></>
+  }
+
+  const statusChip = (exam: RecentExam, status: { label: string; color: 'default' | 'primary' | 'warning' | 'success' | 'error' }) => {
+    const isNotSend = exam.status === "não enviado";
+
+    return <div onClick={isNotSend ? () => window.location.reload() : undefined}
+      style={{ cursor: isNotSend ? 'pointer' : 'default' }}
+    ><Chip
+        label={status.label}
+        color={status.color}
+        size="small"
+        sx={{ fontWeight: 600, fontSize: '0.72rem', minWidth: 90 }}
+      /></div>
+  }
 
   return (
     <Card>
@@ -87,12 +115,7 @@ export function RecentExamsTable() {
                         <Typography variant="body2">{exam.examType}</Typography>
                       </TableCell>
                       <TableCell align="center">
-                        <Chip
-                          label={status.label}
-                          color={status.color}
-                          size="small"
-                          sx={{ fontWeight: 600, fontSize: '0.72rem', minWidth: 90 }}
-                        />
+                        {statusChip(exam, status)}
                       </TableCell>
                       <TableCell align="center">
                         <Box sx={{ display: 'flex', justifyContent: 'center', gap: 0.5 }}>
@@ -101,11 +124,7 @@ export function RecentExamsTable() {
                               <VisibilityOutlinedIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
-                          <Tooltip title="Baixar laudo">
-                            <IconButton size="small" aria-label={`Baixar laudo ${exam.id}`}>
-                              <FileDownloadOutlinedIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
+                          {donwloadAction(exam)}
                         </Box>
                       </TableCell>
                     </TableRow>

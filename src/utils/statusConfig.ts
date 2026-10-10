@@ -17,10 +17,11 @@ export const EXAM_STATUS_CONFIG: Record<
   ExamStatus,
   { label: string; color: 'default' | 'primary' | 'warning' | 'success' | 'error' }
 > = {
-  pendente:   { label: 'Pendente',   color: 'warning' },
+  pendente: { label: 'Pendente', color: 'warning' },
   em_analise: { label: 'Em Análise', color: 'primary' },
-  concluido:  { label: 'Concluído',  color: 'success' },
-  cancelado:  { label: 'Cancelado',  color: 'error'   },
+  concluido: { label: 'Concluído', color: 'success' },
+  cancelado: { label: 'Cancelado', color: 'error' },
+  "não enviado": { label: 'Não Enviado', color: 'error' },
 };
 
 /**
@@ -36,7 +37,7 @@ export const PATIENT_STATUS_CONFIG: Record<
   PatientStatus,
   { label: string; color: 'success' | 'default' }
 > = {
-  ativo:   { label: 'Ativo',   color: 'success' },
+  ativo: { label: 'Ativo', color: 'success' },
   inativo: { label: 'Inativo', color: 'default' },
 };
 
@@ -51,7 +52,7 @@ export const PATIENT_STATUS_CONFIG: Record<
  * ```
  */
 export const ROLE_LABEL: Record<string, string> = {
-  medico:        'Médico(a)',
-  tecnico:       'Técnico(a)',
+  medico: 'Médico(a)',
+  tecnico: 'Técnico(a)',
   administrador: 'Administrador(a)',
 };
